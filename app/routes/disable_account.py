@@ -1,20 +1,21 @@
 import MT5Manager
-from fastapi import HTTPException, status as http_status
+from fastapi import Depends, HTTPException, status as http_status
 
 from fastapi.responses import JSONResponse
 
 from app.config.api_router import api_router
 
 from app.schema.login_request import LoginRequest
-from libs.manager import Manager
+from libs.manager import Manager, get_mt5_manager
 
 manager = Manager()
 
 
 @api_router.post("/api/disable_account")
-async def disable_account(request: LoginRequest):
+async def disable_account(
+    request: LoginRequest, manager: Manager = Depends(get_mt5_manager)
+):
     try:
-        manager.connect()
 
         user_obj = manager.client.UserGet(request.login)
 
@@ -35,6 +36,3 @@ async def disable_account(request: LoginRequest):
             content={"success": False, "error": str(e)},
             status_code=500,
         )
-
-    finally:
-        manager.disconnect()

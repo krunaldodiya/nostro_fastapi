@@ -1,34 +1,35 @@
 import MT5Manager
-from fastapi import HTTPException, status as http_status
+from fastapi import Depends, HTTPException, status as http_status
 
 from fastapi.responses import JSONResponse
 
 from app.config.api_router import api_router
 
 from app.routes.dealer_sink import DealerSink
-from libs.manager import Manager
+from app.schema.login_balance_request import LoginBalanceRequest
+from libs.manager import Manager, get_mt5_manager
 
-manager = Manager()
 
-
-@api_router.post("/api/reset_to_initial_balance/{login}/{initial_balance}")
-async def reset_to_initial_balance(login: int, initial_balance: float):
+@api_router.post("/api/reset_to_initial_balance")
+async def reset_to_initial_balance(
+    request: LoginBalanceRequest, manager: Manager = Depends(get_mt5_manager)
+):
     try:
 
-        manager.connect()
-
-        user_account: MT5Manager.MTAccount = manager.client.UserAccountGet(login)
+        user_account: MT5Manager.MTAccount = manager.client.UserAccountGet(
+            request.login
+        )
         if not user_account:
             raise HTTPException(status_code=404, detail="User account not found")
 
-        request = MT5Manager.MTRequest(manager.client)
-        request.Action = MT5Manager.MTRequest.EnTradeActions.TA_DEALER_BALANCE
-        request.Type = MT5Manager.MTOrder.EnOrderType.OP_SELL_STOP
-        request.Login = login
-        request.PriceOrder = initial_balance - user_account.Equity
+        mt_request = MT5Manager.MTRequest(manager.client)
+        mt_request.Action = MT5Manager.MTRequest.EnTradeActions.TA_DEALER_BALANCE
+        mt_request.Type = MT5Manager.MTOrder.EnOrderType.OP_SELL_STOP
+        mt_request.Login = request.login
+        mt_request.PriceOrder = request.initial_balance - user_account.Equity
 
         sink = DealerSink()
-        response = manager.client.DealerSend(request, sink)
+        response = manager.client.DealerSend(mt_request, sink)
 
         if not response:
             raise HTTPException(status_code=400, detail="Failed to reset balance")
@@ -36,7 +37,7 @@ async def reset_to_initial_balance(login: int, initial_balance: float):
         return JSONResponse(
             content={
                 "success": True,
-                "message": f"User {login} balance reset to {initial_balance}",
+                "message": f"User {request.login} balance reset to {request.initial_balance}",
             },
             status_code=200,
         )
@@ -45,6 +46,3 @@ async def reset_to_initial_balance(login: int, initial_balance: float):
             content={"success": False, "error": str(e)},
             status_code=500,
         )
-
-    finally:
-        manager.disconnect()

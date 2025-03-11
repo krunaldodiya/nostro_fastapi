@@ -1,23 +1,25 @@
 import time
 import MT5Manager
-from fastapi import HTTPException, status as http_status
+from fastapi import Depends, HTTPException, status as http_status
 
 from fastapi.responses import JSONResponse
 
 from app.config.api_router import api_router
 
 from app.routes.dealer_sink import DealerSink
-from libs.manager import Manager
+from app.schema.login_request import LoginRequest
+from libs.manager import Manager, get_mt5_manager
 
 manager = Manager()
 
 
-@api_router.post("/api/close_account_positions/{login}")
-async def close_account_positions(login: int):
+@api_router.post("/api/close_account_positions")
+async def close_account_positions(
+    request: LoginRequest, manager: Manager = Depends(get_mt5_manager)
+):
     try:
-        manager.connect()
 
-        positions = manager.client.PositionGet(login)
+        positions = manager.client.PositionGet(request.login)
         if not positions:
             return JSONResponse(
                 content={"success": True, "message": "No open positions to close"},
@@ -55,7 +57,7 @@ async def close_account_positions(login: int):
         return JSONResponse(
             content={
                 "success": True,
-                "message": f"All positions for user {login} closed successfully",
+                "message": f"All positions for user {request.login} closed successfully",
             },
             status_code=200,
         )
@@ -64,6 +66,3 @@ async def close_account_positions(login: int):
         return JSONResponse(
             content={"success": False, "error": str(e)}, status_code=500
         )
-
-    finally:
-        manager.disconnect()

@@ -1,40 +1,43 @@
 import time
 import MT5Manager
-from fastapi import HTTPException, status as http_status
+from fastapi import Depends, HTTPException, status as http_status
 
 from fastapi.responses import JSONResponse
 
 from app.config.api_router import api_router
 
 from app.routes.dealer_sink import DealerSink
-from libs.manager import Manager
+from app.schema.login_symbol_request import LoginSymbolRequest
+from libs.manager import Manager, get_mt5_manager
 
-manager = Manager()
 
-
-@api_router.post("/api/close_account_positions_by_symbol/{login}/{symbol}")
-async def close_account_positions_by_symbol(login: int, symbol: str):
+@api_router.post("/api/close_account_positions_by_symbol")
+async def close_account_positions_by_symbol(
+    request: LoginSymbolRequest, manager: Manager = Depends(get_mt5_manager)
+):
 
     try:
         manager.connect()
-        positions: list[MT5Manager.MTPosition] = manager.client.PositionGet(login)
+        positions: list[MT5Manager.MTPosition] = manager.client.PositionGet(
+            request.login
+        )
         if not positions:
             raise HTTPException(
                 status_code=404,
-                detail=f"No open positions found for login {login}",
+                detail=f"No open positions found for login {request.login}",
             )
 
         sink = DealerSink()
         position_closed = False
 
         for position in positions:
-            if position.Symbol != symbol:
+            if position.Symbol != request.symbol:
                 continue
 
             order = MT5Manager.MTRequest(manager.client)
             order.Action = MT5Manager.MTRequest.EnTradeActions.TA_DEALER_FIRST
             order.TypeFill = MT5Manager.MTOrder.EnOrderFilling.ORDER_FILL_FIRST
-            order.Login = login
+            order.Login = request.login
             order.Symbol = position.Symbol
             order.Position = position.Position
             order.Volume = position.Volume
@@ -50,7 +53,7 @@ async def close_account_positions_by_symbol(login: int, symbol: str):
             if not response:
                 raise HTTPException(
                     status_code=500,
-                    detail=f"Failed to close position {position.Position} for symbol {symbol}",
+                    detail=f"Failed to close position {position.Position} for symbol {request.symbol}",
                 )
 
             position_closed = True
@@ -58,7 +61,7 @@ async def close_account_positions_by_symbol(login: int, symbol: str):
         if not position_closed:
             raise HTTPException(
                 status_code=404,
-                detail=f"No matching positions found for symbol {symbol}",
+                detail=f"No matching positions found for symbol {request.symbol}",
             )
 
         return {"success": True}

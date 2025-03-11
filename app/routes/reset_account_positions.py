@@ -1,24 +1,26 @@
 import time
 import MT5Manager
-from fastapi import HTTPException, status as http_status
+from fastapi import Depends, HTTPException, status as http_status
 
 from fastapi.responses import JSONResponse
 
 from app.config.api_router import api_router
 
 from app.routes.dealer_sink import DealerSink
-from libs.manager import Manager
+from app.schema.login_request import LoginRequest
+from libs.manager import Manager, get_mt5_manager
 
-manager = Manager()
 
-
-@api_router.post("/api/reset_account/{login}")
-async def reset_account_positions(login: int):
+@api_router.post("/api/reset_account_positions")
+async def reset_account_positions(
+    request: LoginRequest, manager: Manager = Depends(get_mt5_manager)
+):
     try:
-        manager.connect()
 
-        user_obj: MT5Manager.MTUser = manager.client.UserGet(login)
-        user_account: MT5Manager.MTAccount = manager.client.UserAccountGet(login)
+        user_obj: MT5Manager.MTUser = manager.client.UserGet(request.login)
+        user_account: MT5Manager.MTAccount = manager.client.UserAccountGet(
+            request.login
+        )
 
         if not user_obj or not user_account:
             raise HTTPException(status_code=404, detail="User account not found")
@@ -29,7 +31,7 @@ async def reset_account_positions(login: int):
             raise HTTPException(status_code=400, detail="Invalid initial balance")
 
         # Get open positions
-        positions = manager.client.PositionGet(login)
+        positions = manager.client.PositionGet(request.login)
         if not positions:
             return JSONResponse(
                 content={"success": True, "message": "No open positions to reset"},
@@ -69,7 +71,7 @@ async def reset_account_positions(login: int):
         balance_order = MT5Manager.MTRequest(manager.client)
         balance_order.Action = MT5Manager.MTRequest.EnTradeActions.TA_DEALER_BALANCE
         balance_order.Type = MT5Manager.MTOrder.EnOrderType.OP_SELL_STOP
-        balance_order.Login = login
+        balance_order.Login = request.login
         balance_order.PriceOrder = initial_balance - user_account.Equity
 
         response = manager.client.DealerSend(balance_order, sink)
@@ -79,7 +81,7 @@ async def reset_account_positions(login: int):
         return JSONResponse(
             content={
                 "success": True,
-                "message": f"User {login} positions reset successfully",
+                "message": f"User {request.login} positions reset successfully",
             },
             status_code=200,
         )
@@ -88,6 +90,3 @@ async def reset_account_positions(login: int):
         return JSONResponse(
             content={"success": False, "error": str(e)}, status_code=500
         )
-
-    finally:
-        manager.disconnect()
