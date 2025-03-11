@@ -25,7 +25,10 @@ async def test(user_id: int):
             )
 
         return JSONResponse(
-            content={"success": True, "user": user},
+            content={
+                "success": True,
+                "user": {"login": user.Login, "group": user.Group},
+            },
             status_code=http_status.HTTP_200_OK,
         )
     except Exception as e:
