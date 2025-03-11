@@ -5,17 +5,18 @@ from fastapi.responses import JSONResponse
 
 from app.config.api_router import api_router
 
+from app.schema.login_request import LoginRequest
 from libs.manager import Manager
 
 manager = Manager()
 
 
-@api_router.post("/api/disable_account/{login}")
-async def disable_account(login: int):
+@api_router.post("/api/disable_account")
+async def disable_account(request: LoginRequest):
     try:
         manager.connect()
 
-        user_obj = manager.client.UserGet(login)
+        user_obj = manager.client.UserGet(request.login)
 
         if not isinstance(user_obj, MT5Manager.MTUser):
             raise HTTPException(status_code=404, detail="User not found")
@@ -25,7 +26,7 @@ async def disable_account(login: int):
         manager.client.UserUpdate(user_obj)
 
         return JSONResponse(
-            content={"success": True, "message": f"User {login} disabled"},
+            content={"success": True, "message": f"User {request.login} disabled"},
             status_code=200,
         )
 

@@ -1,18 +1,18 @@
-from fastapi import HTTPException, status as http_status
+from fastapi import Depends, HTTPException, status as http_status
 
 from fastapi.responses import JSONResponse
 
 from app.config.api_router import api_router
 
-from libs.manager import Manager
-
-manager = Manager()
+from libs.manager import Manager, get_mt5_manager
 
 
 @api_router.post("/api/delete_account/{user_id}")
-async def delete_account(user_id: int):
+async def delete_account(
+    user_id: int,
+    manager: Manager = Depends(get_mt5_manager),
+):
     try:
-        manager.connect()
 
         user_deleted = manager.client.UserDelete(user_id)
 
@@ -29,6 +29,3 @@ async def delete_account(user_id: int):
             content={"success": False, "error": str(e)},
             status_code=500,
         )
-
-    finally:
-        manager.disconnect()

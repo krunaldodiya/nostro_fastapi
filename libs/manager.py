@@ -1,6 +1,8 @@
 import os
 import MT5Manager
 
+from typing import Generator
+
 
 class Manager:
     def __init__(self):
@@ -34,3 +36,14 @@ class Manager:
             self.client.Disconnect()
         except Exception as e:
             raise e
+
+
+def get_mt5_manager() -> Generator[Manager, None, None]:
+    manager = Manager()
+
+    try:
+        manager.connect()
+
+        yield manager
+    finally:
+        manager.disconnect()

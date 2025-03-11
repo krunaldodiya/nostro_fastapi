@@ -5,7 +5,8 @@ from fastapi.responses import JSONResponse
 
 from app.config.api_router import api_router
 
-from libs.manager import DealerSink, Manager
+from app.routes.dealer_sink import DealerSink
+from libs.manager import Manager
 
 manager = Manager()
 
