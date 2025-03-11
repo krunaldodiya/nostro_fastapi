@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 
 from app.config.api_router import api_router
 
-from app.config.manager import Manager
+from libs.manager import Manager
 
 manager = Manager()
 
