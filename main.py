@@ -3,7 +3,12 @@ import dotenv
 dotenv.load_dotenv()
 
 from app.middlewares.api import ApiMiddleware
-from app.routes import get_user_by_id, home, create_mt5_account
+from app.routes import (
+    get_user_by_id,
+    home,
+    create_mt5_account,
+    get_trade_accounts_in_group,
+)
 from fastapi import FastAPI
 
 
@@ -15,6 +20,7 @@ def include_routers(app: FastAPI):
     app.include_router(home.api_router)
     app.include_router(get_user_by_id.api_router)
     app.include_router(create_mt5_account.api_router)
+    app.include_router(get_trade_accounts_in_group.api_router)
 
 
 def start_application():
