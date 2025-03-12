@@ -1,11 +1,10 @@
 import MT5Manager
 
-from fastapi import Depends
+from fastapi import Depends, status as http_status
 from fastapi.responses import JSONResponse
 from app.config.api_router import api_router
 from app.schemas.create_account_response import CreateAccountResponse
 from app.schemas.login_request import LoginRequest
-
 from libs.manager import Manager, get_mt5_manager
 
 

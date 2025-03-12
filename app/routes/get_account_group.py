@@ -1,9 +1,11 @@
+import MT5Manager
+
 from fastapi import Depends, status as http_status
 from fastapi.responses import JSONResponse
 from app.config.api_router import api_router
 from app.schemas.request_by_login import BaseRequest
 from libs.manager import Manager, get_mt5_manager
-import MT5Manager
+
 
 @api_router.post("/api/get_account_group", response_model=None)
 async def get_account_group(
@@ -22,10 +24,7 @@ async def get_account_group(
             )
         else:
             return JSONResponse(
-                content={
-                    "success": True,
-                    "account_group": user.Group
-                },
+                content={"success": True, "account_group": user.Group},
                 status_code=http_status.HTTP_200_OK,
             )
     except Exception as e:

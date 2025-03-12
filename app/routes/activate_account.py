@@ -1,9 +1,11 @@
+import MT5Manager
+
 from fastapi import Depends, status as http_status
 from fastapi.responses import JSONResponse
 from app.config.api_router import api_router
 from app.schemas.request_by_login import BaseRequest
 from libs.manager import Manager, get_mt5_manager
-import MT5Manager
+
 
 @api_router.post("/api/activate_account", response_model=None)
 async def activate_account(
@@ -27,12 +29,11 @@ async def activate_account(
         if response != True:
             return JSONResponse(
                 content={"success": False, "error": "Unable to update user"},
-                status_code=http_status.HTTP_404_NOT_FOUND)
+                status_code=http_status.HTTP_404_NOT_FOUND,
+            )
         else:
             return JSONResponse(
-                content={
-                    "success": True
-                },
+                content={"success": True},
                 status_code=http_status.HTTP_200_OK,
             )
     except Exception as e:
