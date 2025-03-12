@@ -15,6 +15,7 @@ from app.routes import (
     home,
     create_mt5_account,
     get_trade_accounts_in_group,
+    reset_password,
 )
 
 
@@ -33,6 +34,7 @@ def include_routers(app: FastAPI):
     app.include_router(get_user_by_id.api_router)
     app.include_router(create_mt5_account.api_router)
     app.include_router(get_trade_accounts_in_group.api_router)
+    app.include_router(reset_password.api_router)
 
 
 def start_application():
