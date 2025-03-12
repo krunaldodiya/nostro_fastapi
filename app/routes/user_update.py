@@ -5,7 +5,6 @@ from fastapi.responses import JSONResponse
 from app.config.api_router import api_router
 from app.schemas.create_account_response import CreateAccountResponse
 from app.schemas.login_request import LoginRequest
-
 from app.schemas.user_update_request import UserUpdateRequest
 from libs.manager import Manager, get_mt5_manager
 

@@ -4,6 +4,7 @@ from app.config.api_router import api_router
 from app.schemas.request_by_login import BaseRequest
 from libs.manager import Manager, get_mt5_manager
 
+
 @api_router.post("/api/delete_pending_orders", response_model=None)
 async def delete_pending_orders(
     request: BaseRequest,
@@ -22,9 +23,7 @@ async def delete_pending_orders(
             manager.client.OrderDelete(order.Order)
 
         return JSONResponse(
-            content={
-                "success": True
-            },
+            content={"success": True},
             status_code=http_status.HTTP_200_OK,
         )
     except Exception as e:
