@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 
 from app.config.api_router import api_router
 
-from app.routes.dealer_sink import DealerSink
+from libs.dealer_sink import DealerSink
 from app.schemas.login_balance_request import LoginBalanceRequest
 from libs.manager import Manager, get_mt5_manager
 
