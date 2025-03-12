@@ -22,9 +22,9 @@ async def close_account_positions_by_symbol(
             request.login
         )
         if not positions:
-            raise HTTPException(
-                status_code=404,
-                detail=f"No open positions found for login {request.login}",
+            return JSONResponse(
+                content={"success": True, "message": "No open positions"},
+                status_code=200,
             )
 
         sink = DealerSink()

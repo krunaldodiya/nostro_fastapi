@@ -29,7 +29,11 @@ async def get_open_account_positions(
         positions = manager.client.PositionGet(request.login)
 
         if not positions:
-            return []
+
+            return JSONResponse(
+                content={"success": True, "message": "No open positions"},
+                status_code=200,
+            )
 
         for position in positions:
             trade = OpenDealData(
