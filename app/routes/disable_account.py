@@ -8,8 +8,6 @@ from app.config.api_router import api_router
 from app.schemas.login_request import LoginRequest
 from libs.manager import Manager, get_mt5_manager
 
-manager = Manager()
-
 
 @api_router.post("/api/disable_account")
 async def disable_account(
