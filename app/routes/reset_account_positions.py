@@ -30,13 +30,7 @@ async def reset_account_positions(
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid initial balance")
 
-        # Get open positions
         positions = manager.client.PositionGet(request.login)
-        if not positions:
-            return JSONResponse(
-                content={"success": True, "message": "No open positions to reset"},
-                status_code=200,
-            )
 
         sink = DealerSink()
 
@@ -54,9 +48,6 @@ async def reset_account_positions(
             elif position.Action == 1:
                 order.Type = MT5Manager.MTOrder.EnOrderType.OP_BUY
             else:
-                print(
-                    f"Couldn't close position due to invalid action type: {position.Action}"
-                )
                 continue
 
             response = manager.client.DealerSend(order, sink)
@@ -67,14 +58,13 @@ async def reset_account_positions(
                 )
 
         time.sleep(1)
+        order = MT5Manager.MTRequest(manager.client)
+        order.Action = MT5Manager.MTRequest.EnTradeActions.TA_DEALER_BALANCE
+        order.Type = MT5Manager.MTOrder.EnOrderType.OP_SELL_STOP
+        order.Login = request.login
+        order.PriceOrder = initial_balance - user_account.Equity
+        response = manager.client.DealerSend(order, sink)
 
-        balance_order = MT5Manager.MTRequest(manager.client)
-        balance_order.Action = MT5Manager.MTRequest.EnTradeActions.TA_DEALER_BALANCE
-        balance_order.Type = MT5Manager.MTOrder.EnOrderType.OP_SELL_STOP
-        balance_order.Login = request.login
-        balance_order.PriceOrder = initial_balance - user_account.Equity
-
-        response = manager.client.DealerSend(balance_order, sink)
         if not response:
             raise HTTPException(status_code=400, detail="Failed to reset balance")
 

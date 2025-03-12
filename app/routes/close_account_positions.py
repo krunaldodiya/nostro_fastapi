@@ -10,8 +10,6 @@ from app.routes.dealer_sink import DealerSink
 from app.schema.login_request import LoginRequest
 from libs.manager import Manager, get_mt5_manager
 
-manager = Manager()
-
 
 @api_router.post("/api/close_account_positions")
 async def close_account_positions(
@@ -42,9 +40,6 @@ async def close_account_positions(
             elif position.Action == 1:
                 order.Type = MT5Manager.MTOrder.EnOrderType.OP_BUY
             else:
-                print(
-                    f"Couldn't close position due to invalid action type: {position.Action}"
-                )
                 continue
 
             response = manager.client.DealerSend(order, sink)
