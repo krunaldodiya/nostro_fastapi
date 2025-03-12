@@ -2,9 +2,7 @@ import dotenv
 
 dotenv.load_dotenv()
 
-from app.middlewares.api import ApiMiddleware
 from fastapi import FastAPI
-
 from app.middlewares.api import ApiMiddleware
 from app.routes import (
     delete_account,
@@ -23,7 +21,8 @@ from app.routes import (
     get_account_group,
     get_account_target,
     enable_account,
-    get_account_status_data
+    get_account_status_data,
+    reset_password,
 )
 
 
@@ -49,6 +48,7 @@ def include_routers(app: FastAPI):
     app.include_router(activate_account.api_router)
     app.include_router(enable_account.api_router)
     app.include_router(get_account_status_data.api_router)
+    app.include_router(reset_password.api_router)
 
 
 def start_application():
