@@ -1,21 +1,17 @@
 import MT5Manager
 
-from fastapi import status as http_status
-
+from fastapi import Depends, status as http_status
 from fastapi.responses import JSONResponse
-
 from app.config.api_router import api_router
-
-from libs.manager import Manager
-
-manager = Manager()
+from libs.manager import Manager, get_mt5_manager
 
 
 @api_router.get("/api/users/{user_id}", response_model=None)
-async def test(user_id: int):
+async def get_user_by_id(
+    user_id: int,
+    manager: Manager = Depends(get_mt5_manager),
+):
     try:
-        manager.connect()
-
         user = manager.client.UserGet(user_id)
 
         if not isinstance(user, MT5Manager.MTUser):
@@ -27,7 +23,16 @@ async def test(user_id: int):
         return JSONResponse(
             content={
                 "success": True,
-                "user": {"login": user.Login, "group": user.Group},
+                "user": {
+                    "Login": user.Login,
+                    "Account": user.Account,
+                    "Group": user.Group,
+                    "Name": user.Name,
+                    "Phone": user.Phone,
+                    "Country": user.Country,
+                    "City": user.City,
+                    "Address": user.Address,
+                },
             },
             status_code=http_status.HTTP_200_OK,
         )
@@ -36,5 +41,3 @@ async def test(user_id: int):
             content={"success": False, "error": str(e)},
             status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
-    finally:
-        manager.disconnect()

@@ -258,6 +258,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "fastapi", extra = ["standard"] },
     { name = "mt5manager" },
+    { name = "nostro-mt5-manager-v1" },
     { name = "python-dotenv" },
     { name = "uvicorn" },
     { name = "websockets" },
@@ -267,9 +268,22 @@ dependencies = [
 requires-dist = [
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.11" },
     { name = "mt5manager", specifier = ">=5.0.4874" },
+    { name = "nostro-mt5-manager-v1", specifier = ">=0.0.7" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
     { name = "uvicorn", specifier = ">=0.34.0" },
     { name = "websockets", specifier = ">=15.0.1" },
+]
+
+[[package]]
+name = "nostro-mt5-manager-v1"
+version = "0.0.7"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "mt5manager" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/48/76/1d36ac7635ca9ded9444f5e1dfead45d1209a26cf4c807a49cca4cf0d1f3/nostro_mt5_manager_v1-0.0.7.tar.gz", hash = "sha256:b4493536c9211a370cd08d5040d26e9126a9feabd4912ac8c9140e7a74c9eaeb", size = 937520 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/79/34/45725369e0e4c0768e8d23be78639ebe49b090416fda7bf041bc8ce1034a/nostro_mt5_manager_v1-0.0.7-py2.py3-none-any.whl", hash = "sha256:8fc93176297a9770caff79b8b940ba4c324f40a14257d78a6cc1f28928bde083", size = 5999 },
 ]
 
 [[package]]

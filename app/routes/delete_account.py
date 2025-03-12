@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 
 from app.config.api_router import api_router
 
-from app.schema.login_request import LoginRequest
+from app.schemas.login_request import LoginRequest
 from libs.manager import Manager, get_mt5_manager
 
 
